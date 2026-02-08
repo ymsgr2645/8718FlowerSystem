@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(taskkill:*)",
+      "Bash(Get-Process -Name node)",
+      "Bash(Select-Object Id, ProcessName, StartTime)",
+      "Bash(Format-Table)",
+      "Bash(Remove-Item -Path \".next\" -Recurse -Force -ErrorAction SilentlyContinue)",
+      "WebSearch",
+      "Bash(pip install:*)",
+      "Bash(python3:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(python -c \" import pandas as pd xl = pd.ExcelFile\\(''G:/マイドライブ/8718/参考エクセル/仕入・納品 金額の比較 2025.xlsx''\\) print\\(''=== シート一覧 ===''\\) for s in xl.sheet_names: print\\(f'' - {s}''\\) \")",
+      "Bash(unzip:*)",
+      "Bash(npm run build:*)",
+      "Bash(powershell -Command \"Remove-Item -Path ''G:\\\\マイドライブ\\\\8718systemBETA\\\\flower-inventory-backup\\\\node_modules'' -Recurse -Force\")",
+      "WebFetch(domain:m3.material.io)",
+      "WebFetch(domain:supercharge.design)",
+      "Bash(powershell -Command:*)",
+      "Bash(npx next dev:*)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}

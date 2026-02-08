@@ -1,0 +1,188 @@
+/* ============================================
+   8718 FLOWER SYSTEM - Material 3 Design Tokens
+
+   Material 3の原則に基づいた設計:
+   - Primary: メインアクション、アクティブ状態
+   - Secondary: フィルターチップ、補助要素
+   - Tertiary: バランス調整、アクセント
+   - Surface: 中立的な背景（ピンクティント抑制）
+   ============================================ */
+
+:root {
+  /* ============================================
+     Primary (Terracotta - Brand Color)
+     メインコンポーネント、アクティブ状態、FAB
+     ============================================ */
+  --md-sys-color-primary: #C0634A;
+  --md-sys-color-on-primary: #FFFFFF;
+  --md-sys-color-primary-container: #FFDAD1;
+  --md-sys-color-on-primary-container: #3B0907;
+  --md-sys-color-primary-fixed: #FFDAD1;
+  --md-sys-color-primary-fixed-dim: #FFB4A1;
+  --md-sys-color-on-primary-fixed: #3B0907;
+  --md-sys-color-on-primary-fixed-variant: #9C4A35;
+
+  /* ============================================
+     Secondary (Green - Nature/Flower)
+     フィルターチップ、補助ボタン、成功状態
+     ============================================ */
+  --md-sys-color-secondary: #4A6741;
+  --md-sys-color-on-secondary: #FFFFFF;
+  --md-sys-color-secondary-container: #CCE8BD;
+  --md-sys-color-on-secondary-container: #072105;
+  --md-sys-color-secondary-fixed: #CCE8BD;
+  --md-sys-color-secondary-fixed-dim: #B1CCAA;
+  --md-sys-color-on-secondary-fixed: #072105;
+  --md-sys-color-on-secondary-fixed-variant: #33502B;
+
+  /* ============================================
+     Tertiary (Warm Brown - Accent)
+     プライマリとセカンダリのバランス調整
+     ============================================ */
+  --md-sys-color-tertiary: #7D5700;
+  --md-sys-color-on-tertiary: #FFFFFF;
+  --md-sys-color-tertiary-container: #FFDEAE;
+  --md-sys-color-on-tertiary-container: #271900;
+
+  /* ============================================
+     Error
+     エラー状態、警告、削除アクション
+     ============================================ */
+  --md-sys-color-error: #BA1A1A;
+  --md-sys-color-on-error: #FFFFFF;
+  --md-sys-color-error-container: #FFDAD6;
+  --md-sys-color-on-error-container: #410002;
+
+  /* ============================================
+     Surface - 中立的な背景色
+     Material 3ではSurfaceは目立たない色に
+     ============================================ */
+  --md-sys-color-surface: #FFFBFF;
+  --md-sys-color-on-surface: #1C1B1F;
+  --md-sys-color-surface-variant: #E7E0DF;
+  --md-sys-color-on-surface-variant: #49454F;
+
+  /* Surface Container - 階層表現 */
+  --md-sys-color-surface-container-lowest: #FFFFFF;
+  --md-sys-color-surface-container-low: #F7F2F1;
+  --md-sys-color-surface-container: #F2ECEB;
+  --md-sys-color-surface-container-high: #ECE6E5;
+  --md-sys-color-surface-container-highest: #E6E1E0;
+  --md-sys-color-surface-dim: #DED8D7;
+  --md-sys-color-surface-bright: #FFFBFF;
+
+  /* Inverse */
+  --md-sys-color-inverse-surface: #313033;
+  --md-sys-color-inverse-on-surface: #F4EFF4;
+  --md-sys-color-inverse-primary: #FFB4A1;
+
+  /* ============================================
+     Outline - 境界線、区切り線
+     ============================================ */
+  --md-sys-color-outline: #79747E;
+  --md-sys-color-outline-variant: #CAC4D0;
+
+  /* ============================================
+     Background
+     ============================================ */
+  --md-sys-color-background: #FFFBFF;
+  --md-sys-color-on-background: #1C1B1F;
+
+  /* ============================================
+     Scrim - モーダルオーバーレイ
+     ============================================ */
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-shadow: #000000;
+
+  /* ============================================
+     Elevation (Shadows)
+     階層が上がるほど影が強くなる
+     ============================================ */
+  --md-sys-elevation-level0: none;
+  --md-sys-elevation-level1: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+  --md-sys-elevation-level2: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 2px 6px 2px rgba(0, 0, 0, 0.15);
+  --md-sys-elevation-level3: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 4px 8px 3px rgba(0, 0, 0, 0.15);
+  --md-sys-elevation-level4: 0 2px 3px 0 rgba(0, 0, 0, 0.3), 0 6px 10px 4px rgba(0, 0, 0, 0.15);
+  --md-sys-elevation-level5: 0 4px 4px 0 rgba(0, 0, 0, 0.3), 0 8px 12px 6px rgba(0, 0, 0, 0.15);
+
+  /* ============================================
+     Shape (Corner Radius)
+     5段階のスケール
+     ============================================ */
+  --md-sys-shape-corner-none: 0;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+
+  /* ============================================
+     State Layer Opacity
+     ホバー、フォーカス、プレス状態の透明度
+     ============================================ */
+  --md-sys-state-hover-state-layer-opacity: 0.08;
+  --md-sys-state-focus-state-layer-opacity: 0.12;
+  --md-sys-state-pressed-state-layer-opacity: 0.12;
+  --md-sys-state-dragged-state-layer-opacity: 0.16;
+
+  /* ============================================
+     Motion (Animation)
+     ============================================ */
+  --md-sys-motion-duration-short1: 50ms;
+  --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short3: 150ms;
+  --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium1: 250ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-medium3: 350ms;
+  --md-sys-motion-duration-medium4: 400ms;
+  --md-sys-motion-duration-long1: 450ms;
+  --md-sys-motion-duration-long2: 500ms;
+  --md-sys-motion-duration-long3: 550ms;
+  --md-sys-motion-duration-long4: 600ms;
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+  --md-sys-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+
+  /* ============================================
+     Typography Scale
+     5カテゴリ × 3サイズ = 15スタイル
+     ============================================ */
+  --md-sys-typescale-display-large-size: 57px;
+  --md-sys-typescale-display-medium-size: 45px;
+  --md-sys-typescale-display-small-size: 36px;
+  --md-sys-typescale-headline-large-size: 32px;
+  --md-sys-typescale-headline-medium-size: 28px;
+  --md-sys-typescale-headline-small-size: 24px;
+  --md-sys-typescale-title-large-size: 22px;
+  --md-sys-typescale-title-medium-size: 16px;
+  --md-sys-typescale-title-small-size: 14px;
+  --md-sys-typescale-body-large-size: 16px;
+  --md-sys-typescale-body-medium-size: 14px;
+  --md-sys-typescale-body-small-size: 12px;
+  --md-sys-typescale-label-large-size: 14px;
+  --md-sys-typescale-label-medium-size: 12px;
+  --md-sys-typescale-label-small-size: 11px;
+}
+
+/* ============================================
+   Dark Mode (Optional - for future)
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  :root.dark-mode {
+    --md-sys-color-primary: #FFB4A1;
+    --md-sys-color-on-primary: #5F1608;
+    --md-sys-color-primary-container: #7E2E1D;
+    --md-sys-color-on-primary-container: #FFDAD1;
+    --md-sys-color-surface: #1C1B1F;
+    --md-sys-color-on-surface: #E6E1E5;
+    --md-sys-color-surface-variant: #49454F;
+    --md-sys-color-on-surface-variant: #CAC4D0;
+    --md-sys-color-background: #1C1B1F;
+    --md-sys-color-on-background: #E6E1E5;
+  }
+}

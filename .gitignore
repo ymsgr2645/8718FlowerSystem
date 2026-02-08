@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# Next.js
+.next/
+out/
+
+# Environment & Secrets
+.env
+.env.local
+.env*.local
+ClaudeAPI.env
+
+# Database
+*.db
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Windows shortcuts
+*.lnk
+
+# Raw data (CSV/PDF/installers)
+260201/
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+*.exe
+*.msi
+*.zip
+*.HEIC
+*.png
+everything-claude-code-*/
+コピー-*/

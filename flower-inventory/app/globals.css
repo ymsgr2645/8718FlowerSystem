@@ -1,0 +1,155 @@
+/* ============================================
+   8718 FLOWER SYSTEM - Global Styles
+   Material 3 Design System
+   ============================================ */
+
+@import "tailwindcss";
+@import "../styles/md3-tokens.css";
+@import "../styles/md3-typography.css";
+
+/* Base Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Root Styles */
+html {
+  font-family: 'Zen Maru Gothic', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font-family: 'Zen Maru Gothic', sans-serif;
+  line-height: 1.5;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--md-sys-color-surface-container-low);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--md-sys-color-outline-variant);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--md-sys-color-outline);
+}
+
+/* Focus Styles */
+:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+/* Links */
+a {
+  color: var(--md-sys-color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Utility Classes */
+.md3-surface {
+  background-color: var(--md-sys-color-surface);
+}
+
+.md3-surface-container {
+  background-color: var(--md-sys-color-surface-container);
+}
+
+.md3-surface-container-low {
+  background-color: var(--md-sys-color-surface-container-low);
+}
+
+.md3-surface-container-high {
+  background-color: var(--md-sys-color-surface-container-high);
+}
+
+.md3-primary {
+  color: var(--md-sys-color-primary);
+}
+
+.md3-on-primary {
+  color: var(--md-sys-color-on-primary);
+}
+
+.md3-secondary {
+  color: var(--md-sys-color-secondary);
+}
+
+.md3-error {
+  color: var(--md-sys-color-error);
+}
+
+/* Elevation Classes */
+.md3-elevation-1 {
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+.md3-elevation-2 {
+  box-shadow: var(--md-sys-elevation-level2);
+}
+
+.md3-elevation-3 {
+  box-shadow: var(--md-sys-elevation-level3);
+}
+
+/* Animation Classes */
+.md3-transition {
+  transition: all var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-standard);
+}
+
+/* Grid Layout Helpers */
+.md3-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.md3-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.md3-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.md3-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1200px) {
+  .md3-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .md3-grid-2,
+  .md3-grid-3,
+  .md3-grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
