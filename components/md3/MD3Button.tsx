@@ -1,6 +1,7 @@
 "use client"
 
-import { ReactNode, CSSProperties, ButtonHTMLAttributes, useState } from "react"
+import { ReactNode, CSSProperties, ButtonHTMLAttributes } from "react"
+import { motion } from "motion/react"
 import { md3, md3Shape } from "@/lib/md3-theme"
 
 interface MD3ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -9,6 +10,37 @@ interface MD3ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
   icon?: ReactNode
   fullWidth?: boolean
+}
+
+const variantStyles = {
+  filled: {
+    base: { backgroundColor: md3.primary, color: md3.onPrimary, border: "none", boxShadow: "none" },
+    hover: { backgroundColor: "#A8503A", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" },
+  },
+  outlined: {
+    base: { backgroundColor: "transparent", color: md3.primary, border: `1px solid ${md3.outline}` },
+    hover: { backgroundColor: "rgba(192, 99, 74, 0.08)" },
+  },
+  text: {
+    base: { backgroundColor: "transparent", color: md3.primary, border: "none" },
+    hover: { backgroundColor: "rgba(192, 99, 74, 0.08)" },
+  },
+  tonal: {
+    base: { backgroundColor: md3.secondaryContainer, color: md3.onSecondaryContainer, border: "none" },
+    hover: { backgroundColor: "#C8E6C9" },
+  },
+  elevated: {
+    base: {
+      backgroundColor: md3.surfaceContainerLow,
+      color: md3.primary,
+      border: "none",
+      boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15)",
+    },
+    hover: {
+      backgroundColor: md3.surfaceContainerHigh,
+      boxShadow: "0 2px 6px 2px rgba(0, 0, 0, 0.15)",
+    },
+  },
 }
 
 export function MD3Button({
@@ -21,9 +53,6 @@ export function MD3Button({
   style,
   ...props
 }: MD3ButtonProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const [isPressed, setIsPressed] = useState(false)
-
   const sizeConfig = {
     small: { height: 32, padding: icon ? "0 16px 0 12px" : "0 16px", fontSize: 12, gap: 6 },
     medium: { height: 40, padding: icon ? "0 24px 0 16px" : "0 24px", fontSize: 14, gap: 8 },
@@ -31,78 +60,37 @@ export function MD3Button({
   }
 
   const currentSize = sizeConfig[size]
-
-  const baseStyles: CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: currentSize.gap,
-    height: currentSize.height,
-    padding: currentSize.padding,
-    borderRadius: md3Shape.full,
-    fontSize: currentSize.fontSize,
-    fontWeight: 500,
-    fontFamily: "'Zen Maru Gothic', sans-serif",
-    cursor: disabled ? "not-allowed" : "pointer",
-    transition: "all 200ms cubic-bezier(0.2, 0, 0, 1)",
-    border: "none",
-    outline: "none",
-    width: fullWidth ? "100%" : "auto",
-    opacity: disabled ? 0.38 : 1,
-    transform: isPressed ? "scale(0.98)" : "scale(1)",
-    ...style,
-  }
-
-  const getVariantStyles = (): CSSProperties => {
-    switch (variant) {
-      case "filled":
-        return {
-          backgroundColor: isHovered ? "#A8503A" : md3.primary,
-          color: md3.onPrimary,
-          boxShadow: isHovered ? "0 2px 4px rgba(0,0,0,0.2)" : "none",
-        }
-      case "outlined":
-        return {
-          backgroundColor: isHovered ? "rgba(192, 99, 74, 0.08)" : "transparent",
-          color: md3.primary,
-          border: `1px solid ${md3.outline}`,
-        }
-      case "text":
-        return {
-          backgroundColor: isHovered ? "rgba(192, 99, 74, 0.08)" : "transparent",
-          color: md3.primary,
-        }
-      case "tonal":
-        return {
-          backgroundColor: isHovered ? "#C8E6C9" : md3.secondaryContainer,
-          color: md3.onSecondaryContainer,
-        }
-      case "elevated":
-        return {
-          backgroundColor: isHovered ? md3.surfaceContainerHigh : md3.surfaceContainerLow,
-          color: md3.primary,
-          boxShadow: isHovered
-            ? "0 2px 6px 2px rgba(0, 0, 0, 0.15)"
-            : "0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15)",
-        }
-      default:
-        return {}
-    }
-  }
+  const vs = variantStyles[variant]
 
   return (
-    <button
-      style={{ ...baseStyles, ...getVariantStyles() }}
+    <motion.button
+      whileHover={disabled ? undefined : vs.hover}
+      whileTap={disabled ? undefined : { scale: 0.97 }}
+      transition={{ duration: 0.15 }}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: currentSize.gap,
+        height: currentSize.height,
+        padding: currentSize.padding,
+        borderRadius: md3Shape.full,
+        fontSize: currentSize.fontSize,
+        fontWeight: 500,
+        fontFamily: "'Zen Maru Gothic', sans-serif",
+        cursor: disabled ? "not-allowed" : "pointer",
+        width: fullWidth ? "100%" : "auto",
+        opacity: disabled ? 0.38 : 1,
+        outline: "none",
+        ...vs.base,
+        ...style,
+      }}
       disabled={disabled}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => { setIsHovered(false); setIsPressed(false) }}
-      onMouseDown={() => setIsPressed(true)}
-      onMouseUp={() => setIsPressed(false)}
-      {...props}
+      {...(props as object)}
     >
       {icon && <span style={{ display: "flex" }}>{icon}</span>}
       {children}
-    </button>
+    </motion.button>
   )
 }
 
@@ -113,6 +101,25 @@ interface MD3IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: "small" | "medium" | "large"
 }
 
+const iconVariantStyles = {
+  standard: {
+    base: { backgroundColor: "transparent", color: md3.onSurfaceVariant, border: "none" },
+    hover: { backgroundColor: "rgba(0, 0, 0, 0.08)" },
+  },
+  filled: {
+    base: { backgroundColor: md3.primary, color: md3.onPrimary, border: "none" },
+    hover: { backgroundColor: "#A8503A" },
+  },
+  tonal: {
+    base: { backgroundColor: md3.secondaryContainer, color: md3.onSecondaryContainer, border: "none" },
+    hover: { backgroundColor: "#C8E6C9" },
+  },
+  outlined: {
+    base: { backgroundColor: "transparent", color: md3.onSurfaceVariant, border: `1px solid ${md3.outline}` },
+    hover: { backgroundColor: "rgba(0, 0, 0, 0.08)" },
+  },
+}
+
 export function MD3IconButton({
   variant = "standard",
   children,
@@ -121,75 +128,36 @@ export function MD3IconButton({
   style,
   ...props
 }: MD3IconButtonProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const [isPressed, setIsPressed] = useState(false)
-
-  const sizes = {
-    small: 32,
-    medium: 40,
-    large: 48,
-  }
-
-  const baseStyles: CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: sizes[size],
-    height: sizes[size],
-    borderRadius: md3Shape.full,
-    cursor: disabled ? "not-allowed" : "pointer",
-    transition: "all 200ms cubic-bezier(0.2, 0, 0, 1)",
-    border: "none",
-    outline: "none",
-    opacity: disabled ? 0.38 : 1,
-    transform: isPressed ? "scale(0.92)" : "scale(1)",
-    ...style,
-  }
-
-  const getVariantStyles = (): CSSProperties => {
-    switch (variant) {
-      case "standard":
-        return {
-          backgroundColor: isHovered ? "rgba(0, 0, 0, 0.08)" : "transparent",
-          color: md3.onSurfaceVariant,
-        }
-      case "filled":
-        return {
-          backgroundColor: isHovered ? "#A8503A" : md3.primary,
-          color: md3.onPrimary,
-        }
-      case "tonal":
-        return {
-          backgroundColor: isHovered ? "#C8E6C9" : md3.secondaryContainer,
-          color: md3.onSecondaryContainer,
-        }
-      case "outlined":
-        return {
-          backgroundColor: isHovered ? "rgba(0, 0, 0, 0.08)" : "transparent",
-          color: md3.onSurfaceVariant,
-          border: `1px solid ${md3.outline}`,
-        }
-      default:
-        return {}
-    }
-  }
+  const sizes = { small: 32, medium: 40, large: 48 }
+  const vs = iconVariantStyles[variant]
 
   return (
-    <button
-      style={{ ...baseStyles, ...getVariantStyles() }}
+    <motion.button
+      whileHover={disabled ? undefined : vs.hover}
+      whileTap={disabled ? undefined : { scale: 0.88 }}
+      transition={{ duration: 0.15 }}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: sizes[size],
+        height: sizes[size],
+        borderRadius: md3Shape.full,
+        cursor: disabled ? "not-allowed" : "pointer",
+        outline: "none",
+        opacity: disabled ? 0.38 : 1,
+        ...vs.base,
+        ...style,
+      }}
       disabled={disabled}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => { setIsHovered(false); setIsPressed(false) }}
-      onMouseDown={() => setIsPressed(true)}
-      onMouseUp={() => setIsPressed(false)}
-      {...props}
+      {...(props as object)}
     >
       {children}
-    </button>
+    </motion.button>
   )
 }
 
-// FAB (Floating Action Button)
+// FAB
 interface MD3FABProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "surface" | "primary" | "secondary" | "tertiary"
   size?: "small" | "medium" | "large"
@@ -197,54 +165,35 @@ interface MD3FABProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   label?: string
 }
 
-export function MD3FAB({
-  variant = "primary",
-  size = "medium",
-  icon,
-  label,
-  style,
-  ...props
-}: MD3FABProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const [isPressed, setIsPressed] = useState(false)
+const fabVariantStyles = {
+  surface: {
+    base: { backgroundColor: md3.surfaceContainerHigh, color: md3.primary },
+    hover: { backgroundColor: md3.surfaceContainerHighest },
+  },
+  primary: {
+    base: { backgroundColor: md3.primaryContainer, color: md3.onPrimaryContainer },
+    hover: { backgroundColor: "#E8BDB2" },
+  },
+  secondary: {
+    base: { backgroundColor: md3.secondaryContainer, color: md3.onSecondaryContainer },
+    hover: { backgroundColor: "#C8E6C9" },
+  },
+  tertiary: {
+    base: { backgroundColor: md3.tertiaryContainer, color: md3.onTertiaryContainer },
+    hover: { backgroundColor: "#FFCA80" },
+  },
+}
 
-  const sizes = {
-    small: { size: 40, iconSize: 24, padding: 8 },
-    medium: { size: 56, iconSize: 24, padding: 16 },
-    large: { size: 96, iconSize: 36, padding: 30 },
-  }
-
-  const getVariantStyles = (): CSSProperties => {
-    switch (variant) {
-      case "surface":
-        return {
-          backgroundColor: isHovered ? md3.surfaceContainerHighest : md3.surfaceContainerHigh,
-          color: md3.primary,
-        }
-      case "primary":
-        return {
-          backgroundColor: isHovered ? "#E8BDB2" : md3.primaryContainer,
-          color: md3.onPrimaryContainer,
-        }
-      case "secondary":
-        return {
-          backgroundColor: isHovered ? "#C8E6C9" : md3.secondaryContainer,
-          color: md3.onSecondaryContainer,
-        }
-      case "tertiary":
-        return {
-          backgroundColor: isHovered ? "#FFCA80" : md3.tertiaryContainer,
-          color: md3.onTertiaryContainer,
-        }
-      default:
-        return {}
-    }
-  }
-
+export function MD3FAB({ variant = "primary", size = "medium", icon, label, style, ...props }: MD3FABProps) {
+  const sizes = { small: { size: 40, padding: 8 }, medium: { size: 56, padding: 16 }, large: { size: 96, padding: 30 } }
+  const vs = fabVariantStyles[variant]
   const isExtended = !!label
 
   return (
-    <button
+    <motion.button
+      whileHover={{ ...vs.hover, boxShadow: "0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.3)" }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ duration: 0.15 }}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -259,22 +208,14 @@ export function MD3FAB({
         fontFamily: "'Zen Maru Gothic', sans-serif",
         fontSize: 14,
         fontWeight: 500,
-        boxShadow: isHovered
-          ? "0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3)"
-          : "0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 4px 8px 3px rgba(0, 0, 0, 0.15)",
-        transition: "all 200ms cubic-bezier(0.2, 0, 0, 1)",
-        transform: isPressed ? "scale(0.95)" : "scale(1)",
-        ...getVariantStyles(),
+        boxShadow: "0 1px 3px 0 rgba(0,0,0,0.3), 0 4px 8px 3px rgba(0,0,0,0.15)",
+        ...vs.base,
         ...style,
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => { setIsHovered(false); setIsPressed(false) }}
-      onMouseDown={() => setIsPressed(true)}
-      onMouseUp={() => setIsPressed(false)}
-      {...props}
+      {...(props as object)}
     >
       {icon}
       {label && <span>{label}</span>}
-    </button>
+    </motion.button>
   )
 }

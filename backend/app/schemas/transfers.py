@@ -7,6 +7,7 @@ from decimal import Decimal
 class TransferCreate(BaseModel):
     store_id: int
     item_id: int
+    arrival_id: Optional[int] = None
     quantity: int
     unit_price: Decimal
     wholesale_price: Optional[Decimal] = None
@@ -18,6 +19,7 @@ class TransferResponse(BaseModel):
     id: int
     store_id: int
     item_id: int
+    arrival_id: Optional[int] = None
     quantity: int
     unit_price: Decimal
     wholesale_price: Optional[Decimal] = None
@@ -28,6 +30,13 @@ class TransferResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class PriceChangeCreate(BaseModel):
+    item_id: int
+    old_price: Optional[Decimal] = None
+    new_price: Decimal
+    reason: Optional[str] = None
 
 
 class PriceChangeResponse(BaseModel):

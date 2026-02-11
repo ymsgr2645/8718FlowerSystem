@@ -1,5 +1,5 @@
 """
-商品マスタ
+花マスタ
 4桁コード: 初期はランダム、後から変更可
 """
 
@@ -19,6 +19,7 @@ class Item(Base):
     category = Column(String(50))  # 切花/鉢花/資材など
     default_unit_price = Column(Numeric(10, 2))
     tax_rate = Column(Numeric(4, 2), default=0.10)
+    sort_order = Column(Integer, default=99)  # 表示順
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

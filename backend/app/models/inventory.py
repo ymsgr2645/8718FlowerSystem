@@ -33,10 +33,17 @@ class Arrival(Base):
     __tablename__ = "arrivals"
 
     id = Column(Integer, primary_key=True, index=True)
+    display_id = Column(String(20), unique=True, index=True)  # 日付+連番 e.g. 260208-003
     item_id = Column(Integer, ForeignKey("items.id"), nullable=False)
     supplier_id = Column(Integer, ForeignKey("suppliers.id"))
     quantity = Column(Integer, nullable=False)
     wholesale_price = Column(Numeric(10, 2))  # 仕入単価
+    color = Column(String(100))         # 色
+    grade = Column(String(50))          # 等級 (秀/優/良 etc.)
+    grade_class = Column(String(50))    # 階級 (2L/L/M/S etc.)
+    stem_length = Column(Integer)       # 長さ (cm)
+    bloom_count = Column(Integer)       # 輪数
+    remaining_quantity = Column(Integer)  # 残数（入荷ロット単位の在庫）
     arrived_at = Column(DateTime(timezone=True), server_default=func.now())
     source_type = Column(String(20))  # csv / pdf / manual
     source_file = Column(String(500))
@@ -56,6 +63,7 @@ class Disposal(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     item_id = Column(Integer, ForeignKey("items.id"), nullable=False)
+    arrival_id = Column(Integer, ForeignKey("arrivals.id"), nullable=True)  # 入荷ロットID
     quantity = Column(Integer, nullable=False)
     reason = Column(String(50))  # damage/expired/lost/other
     note = Column(Text)

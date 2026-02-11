@@ -102,9 +102,9 @@ export default function TransferPage() {
               )}
 
               <MD3Select
-                label="商品"
+                label="花"
                 options={items.map((i) => ({ value: String(i.id), label: `${i.item_code} ${i.name}` }))}
-                placeholder="商品を選択"
+                placeholder="花を選択"
                 value={selectedItem}
                 onChange={(e) => setSelectedItem(e.target.value)}
                 fullWidth
@@ -162,7 +162,7 @@ export default function TransferPage() {
                   <MD3TableRow hoverable={false}>
                     <MD3TableHeaderCell>日付</MD3TableHeaderCell>
                     <MD3TableHeaderCell>店舗</MD3TableHeaderCell>
-                    <MD3TableHeaderCell>商品</MD3TableHeaderCell>
+                    <MD3TableHeaderCell>花</MD3TableHeaderCell>
                     <MD3TableHeaderCell align="right">数量</MD3TableHeaderCell>
                     <MD3TableHeaderCell align="right">仕切値</MD3TableHeaderCell>
                     <MD3TableHeaderCell align="right">販売単価</MD3TableHeaderCell>

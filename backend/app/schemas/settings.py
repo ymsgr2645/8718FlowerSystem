@@ -45,6 +45,7 @@ class SupplierResponse(BaseModel):
     email: Optional[str] = None
     csv_encoding: str
     csv_format: Optional[str] = None
+    sort_order: Optional[int] = 99
     is_active: bool
     created_at: datetime
 
@@ -65,3 +66,13 @@ class SupplierUpdate(BaseModel):
     csv_encoding: Optional[str] = None
     csv_format: Optional[str] = None
     is_active: Optional[bool] = None
+    sort_order: Optional[int] = None
+
+
+class SupplierReorderItem(BaseModel):
+    id: int
+    sort_order: int
+
+
+class SupplierReorderRequest(BaseModel):
+    items: List[SupplierReorderItem]

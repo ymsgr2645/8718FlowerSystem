@@ -51,6 +51,7 @@ class Supplier(Base):
     email = Column(String(255))
     csv_encoding = Column(String(20), default="utf-8")
     csv_format = Column(String(50))
+    sort_order = Column(Integer, default=99)  # 表示順
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

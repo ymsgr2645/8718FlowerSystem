@@ -1,5 +1,5 @@
 """
-商品マスタ API
+花マスタ API
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -8,7 +8,9 @@ from typing import List, Optional
 
 from app.database import get_db
 from app.models.items import Item, generate_item_code
-from app.schemas.items import ItemResponse, ItemCreate, ItemUpdate
+from app.models.inventory import Inventory, Arrival, Disposal, InventoryAdjustment
+from app.models.transfers import Transfer, PriceChange
+from app.schemas.items import ItemResponse, ItemCreate, ItemUpdate, ItemReorderRequest
 
 router = APIRouter()
 
@@ -22,7 +24,7 @@ def get_items(
     is_active: Optional[bool] = True,
     db: Session = Depends(get_db)
 ):
-    """商品一覧を取得"""
+    """花一覧を取得"""
     query = db.query(Item)
     if is_active is not None:
         query = query.filter(Item.is_active == is_active)
@@ -36,12 +38,12 @@ def get_items(
             (Item.item_code.contains(search))
         )
 
-    return query.offset(skip).limit(limit).all()
+    return query.order_by(Item.sort_order.asc(), Item.id.asc()).offset(skip).limit(limit).all()
 
 
 @router.get("/{item_id}", response_model=ItemResponse)
 def get_item(item_id: int, db: Session = Depends(get_db)):
-    """商品詳細を取得"""
+    """花詳細を取得"""
     item = db.query(Item).filter(Item.id == item_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -50,7 +52,7 @@ def get_item(item_id: int, db: Session = Depends(get_db)):
 
 @router.get("/code/{item_code}", response_model=ItemResponse)
 def get_item_by_code(item_code: str, db: Session = Depends(get_db)):
-    """4桁コードで商品を取得"""
+    """4桁コードで花を取得"""
     item = db.query(Item).filter(Item.item_code == item_code).first()
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -59,7 +61,7 @@ def get_item_by_code(item_code: str, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=ItemResponse)
 def create_item(item: ItemCreate, db: Session = Depends(get_db)):
-    """商品を作成"""
+    """花を作成"""
     # 4桁コードを自動生成（指定がない場合）
     item_code = item.item_code or generate_item_code()
 
@@ -85,7 +87,7 @@ def create_item(item: ItemCreate, db: Session = Depends(get_db)):
 
 @router.put("/{item_id}", response_model=ItemResponse)
 def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db)):
-    """商品を更新"""
+    """花を更新"""
     db_item = db.query(Item).filter(Item.id == item_id).first()
     if not db_item:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -97,3 +99,32 @@ def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+@router.post("/reorder")
+def reorder_items(request: ItemReorderRequest, db: Session = Depends(get_db)):
+    """花の表示順を一括更新"""
+    for item in request.items:
+        db_item = db.query(Item).filter(Item.id == item.id).first()
+        if db_item:
+            db_item.sort_order = item.sort_order
+    db.commit()
+    return {"status": "ok", "updated": len(request.items)}
+
+
+@router.delete("/{item_id}")
+def delete_item(item_id: int, db: Session = Depends(get_db)):
+    """花を削除（関連データも全て削除）"""
+    db_item = db.query(Item).filter(Item.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    db.query(PriceChange).filter(PriceChange.item_id == item_id).delete()
+    db.query(Transfer).filter(Transfer.item_id == item_id).delete()
+    db.query(Disposal).filter(Disposal.item_id == item_id).delete()
+    db.query(InventoryAdjustment).filter(InventoryAdjustment.item_id == item_id).delete()
+    db.query(Arrival).filter(Arrival.item_id == item_id).delete()
+    db.query(Inventory).filter(Inventory.item_id == item_id).delete()
+    db.delete(db_item)
+    db.commit()
+    return {"status": "ok", "deleted_id": item_id}

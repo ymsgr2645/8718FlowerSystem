@@ -23,7 +23,7 @@ interface MD3ItemAutocompleteProps {
 
 export function MD3ItemAutocomplete({
   label,
-  placeholder = "商品を検索...",
+  placeholder = "花を検索...",
   items,
   value,
   onChange,
@@ -255,7 +255,7 @@ export function MD3ItemAutocomplete({
                 fontFamily: "'Zen Maru Gothic', sans-serif",
               }}
             >
-              該当する商品がありません
+              該当する花がありません
             </div>
           ) : (
             filteredItems.map((item, index) => (

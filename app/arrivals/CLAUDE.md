@@ -5,5 +5,5 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #56 | 9:49 AM | 🔵 | Arrivals page implements CSV/Excel import with manual entry and supplies tracking | ~573 |
+| #144 | 11:20 AM | 🔵 | Arrivals page implements flower and supply stock receipt management | ~551 |
 </claude-mem-context>

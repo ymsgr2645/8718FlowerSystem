@@ -70,11 +70,11 @@ export default function DisposalsPage() {
           <MD3CardContent>
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <MD3Select
-                label="商品"
+                label="花"
                 value={itemId}
                 onChange={(e) => setItemId(e.target.value)}
                 options={items.map((i) => ({ value: String(i.id), label: `${i.item_code} ${i.name}` }))}
-                placeholder="商品を選択"
+                placeholder="花を選択"
                 fullWidth
               />
               <MD3NumberField label="数量" value={quantity} onChange={setQuantity} fullWidth />
@@ -94,7 +94,7 @@ export default function DisposalsPage() {
               <MD3TableHead>
                 <MD3TableRow hoverable={false}>
                   <MD3TableHeaderCell>日付</MD3TableHeaderCell>
-                  <MD3TableHeaderCell>商品</MD3TableHeaderCell>
+                  <MD3TableHeaderCell>花</MD3TableHeaderCell>
                   <MD3TableHeaderCell>理由</MD3TableHeaderCell>
                   <MD3TableHeaderCell align="right">数量</MD3TableHeaderCell>
                 </MD3TableRow>

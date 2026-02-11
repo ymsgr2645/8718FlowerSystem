@@ -36,6 +36,8 @@ export interface Store {
   operation_type: "headquarters" | "franchise";
   store_type: "store" | "online" | "consignment";
   email?: string;
+  color?: string;
+  sort_order?: number;
   is_active: boolean;
   created_at: string;
 }
@@ -47,6 +49,10 @@ export const storesApi = {
     apiRequest<Store>("/api/stores", { method: "POST", body: data }),
   update: (id: number, data: Partial<Store>) =>
     apiRequest<Store>(`/api/stores/${id}`, { method: "PUT", body: data }),
+  delete: (id: number) =>
+    apiRequest<{ status: string }>(`/api/stores/${id}`, { method: "DELETE" }),
+  reorder: (items: { id: number; sort_order: number }[]) =>
+    apiRequest<{ status: string; updated: number }>("/api/stores/reorder", { method: "POST", body: { items } }),
 };
 
 // ========== Items ==========
@@ -58,6 +64,7 @@ export interface Item {
   category?: string;
   default_unit_price?: number;
   tax_rate: number;
+  sort_order?: number;
   is_active: boolean;
   created_at: string;
   updated_at?: string;
@@ -84,6 +91,10 @@ export const itemsApi = {
   }) => apiRequest<Item>("/api/items", { method: "POST", body: data }),
   update: (id: number, data: Partial<Item>) =>
     apiRequest<Item>(`/api/items/${id}`, { method: "PUT", body: data }),
+  delete: (id: number) =>
+    apiRequest<{ status: string }>(`/api/items/${id}`, { method: "DELETE" }),
+  reorder: (items: { id: number; sort_order: number }[]) =>
+    apiRequest<{ status: string; updated: number }>("/api/items/reorder", { method: "POST", body: { items } }),
 };
 
 // ========== Inventory ==========
@@ -97,13 +108,23 @@ export interface Inventory {
 
 export interface Arrival {
   id: number;
+  display_id?: string;
   item_id: number;
   supplier_id?: number;
   quantity: number;
   wholesale_price?: number;
+  color?: string;
+  grade?: string;
+  grade_class?: string;
+  stem_length?: number;
+  bloom_count?: number;
+  remaining_quantity?: number;
   arrived_at: string;
   source_type?: string;
   created_at: string;
+  item_name?: string;
+  item_variety?: string;
+  supplier_name?: string;
 }
 
 export interface InventoryAdjustment {
@@ -176,7 +197,7 @@ export const inventoryApi = {
   },
 
   // Disposals
-  createDisposal: (data: { item_id: number; quantity: number; reason?: string; note?: string; disposed_by?: number }) =>
+  createDisposal: (data: { item_id: number; arrival_id?: number; quantity: number; reason?: string; note?: string; disposed_by?: number }) =>
     apiRequest<Disposal>("/api/inventory/disposals", { method: "POST", body: data }),
   getDisposals: (params?: { item_id?: number; skip?: number; limit?: number }) => {
     const searchParams = new URLSearchParams();
@@ -198,6 +219,7 @@ export interface Transfer {
   id: number;
   store_id: number;
   item_id: number;
+  arrival_id?: number;
   quantity: number;
   unit_price: number;
   wholesale_price?: number;
@@ -228,6 +250,7 @@ export const transfersApi = {
   create: (data: {
     store_id: number;
     item_id: number;
+    arrival_id?: number;
     quantity: number;
     unit_price: number;
     wholesale_price?: number;
@@ -240,6 +263,17 @@ export const transfersApi = {
     if (dateTo) searchParams.set("date_to", dateTo);
     return apiRequest<Transfer[]>(`/api/transfers/store/${storeId}?${searchParams}`);
   },
+  createPriceChange: (data: {
+    item_id: number;
+    old_price?: number;
+    new_price: number;
+    reason?: string;
+  }) => apiRequest<unknown>("/api/transfers/price-changes", { method: "POST", body: data }),
+  getLatestPrices: () => apiRequest<Record<string, number>>("/api/transfers/price-changes-latest"),
+  getPriceChanges: (itemId: number) =>
+    apiRequest<Array<{ id: number; item_id: number; old_price?: number; new_price: number; changed_at: string; reason?: string }>>(
+      `/api/transfers/price-changes/${itemId}`
+    ),
 };
 
 // ========== Supplies ==========
@@ -276,6 +310,8 @@ export const suppliesApi = {
     apiRequest<Supply>("/api/supplies", { method: "POST", body: data }),
   update: (id: number, data: Partial<Supply>) =>
     apiRequest<Supply>(`/api/supplies/${id}`, { method: "PUT", body: data }),
+  delete: (id: number) =>
+    apiRequest<{ status: string }>(`/api/supplies/${id}`, { method: "DELETE" }),
   addStock: (id: number, quantity: number) =>
     apiRequest<{ id: number; name: string; stock_quantity: number }>(
       `/api/supplies/${id}/add-stock?quantity=${quantity}`,
@@ -325,6 +361,7 @@ export interface Supplier {
   email?: string;
   csv_encoding: string;
   csv_format?: string;
+  sort_order?: number;
   is_active: boolean;
   created_at: string;
 }
@@ -340,6 +377,10 @@ export const settingsApi = {
     apiRequest<Supplier>("/api/settings/suppliers", { method: "POST", body: data }),
   updateSupplier: (id: number, data: Partial<Supplier>) =>
     apiRequest<Supplier>(`/api/settings/suppliers/${id}`, { method: "PUT", body: data }),
+  deleteSupplier: (id: number) =>
+    apiRequest<{ status: string }>(`/api/settings/suppliers/${id}`, { method: "DELETE" }),
+  reorderSuppliers: (items: { id: number; sort_order: number }[]) =>
+    apiRequest<{ status: string; updated: number }>("/api/settings/suppliers/reorder", { method: "POST", body: { items } }),
 };
 
 // ========== Expenses ==========
@@ -458,6 +499,174 @@ export const invoicesApi = {
     apiRequest<Invoice>(`/api/invoices/${id}/status?status=${status}`, { method: "PATCH" }),
 };
 
+// ========== Analytics ==========
+export interface SupplierSummary {
+  supplier_id: number;
+  supplier_name: string;
+  arrival_count: number;
+  total_quantity: number;
+  total_amount: number;
+}
+
+export interface StoreSummary {
+  store_id: number;
+  store_name: string;
+  operation_type: string;
+  transfer_count: number;
+  total_quantity: number;
+  delivery_amount: number;
+  purchase_amount: number;
+  margin: number;
+}
+
+export interface DailyComparison {
+  date: string;
+  purchase_amount: number;
+  purchase_quantity: number;
+  delivery_amount: number;
+  delivery_quantity: number;
+  difference: number;
+}
+
+export const analyticsApi = {
+  getSupplierSummary: (year: number, month: number) =>
+    apiRequest<{ year: number; month: number; suppliers: SupplierSummary[]; grand_total: number }>(
+      `/api/analytics/supplier-summary?year=${year}&month=${month}`
+    ),
+  getStoreSummary: (year: number, month: number) =>
+    apiRequest<{ year: number; month: number; stores: StoreSummary[]; total_delivery: number; total_purchase: number; total_margin: number }>(
+      `/api/analytics/store-summary?year=${year}&month=${month}`
+    ),
+  getPurchaseDeliveryComparison: (year: number, month: number) =>
+    apiRequest<{
+      year: number; month: number; daily: DailyComparison[];
+      period_totals: Record<string, { purchase: number; delivery: number }>;
+      total_purchase: number; total_delivery: number; total_difference: number;
+    }>(`/api/analytics/purchase-delivery-comparison?year=${year}&month=${month}`),
+  getMonthlyPL: (year: number, month: number, storeId?: number) => {
+    const params = storeId ? `&store_id=${storeId}` : "";
+    return apiRequest<{
+      year: number; month: number; store_id: number | null;
+      summary: {
+        total_purchase: number; total_revenue: number; total_cost: number;
+        gross_profit: number; gross_margin: number; total_expenses: number;
+        total_supply_cost: number; operating_profit: number; total_quantity: number;
+      };
+      expenses_by_category: Record<string, number>;
+      store_breakdown: { store_id: number; store_name: string; revenue: number; quantity: number }[];
+    }>(`/api/analytics/monthly-pl?year=${year}&month=${month}${params}`);
+  },
+};
+
+// ========== Payments ==========
+export interface Payment {
+  id: number;
+  invoice_id: number;
+  amount: number;
+  payment_date: string;
+  payment_method?: string;
+  bank_name?: string;
+  note?: string;
+}
+
+export interface PaymentConfirmation {
+  invoice_id: number;
+  invoice_number: string;
+  store_name: string;
+  period: string;
+  billed_amount: number;
+  paid_amount: number;
+  difference: number;
+  status: string;
+}
+
+export const paymentsApi = {
+  getAll: (invoiceId?: number) => {
+    const params = invoiceId ? `?invoice_id=${invoiceId}` : "";
+    return apiRequest<Payment[]>(`/api/payments${params}`);
+  },
+  create: (data: {
+    invoice_id: number; amount: number; payment_date: string;
+    payment_method?: string; bank_name?: string; note?: string;
+  }) => apiRequest<Payment>("/api/payments", { method: "POST", body: data }),
+  getConfirmation: (year: number, month: number) =>
+    apiRequest<{
+      year: number; month: number; items: PaymentConfirmation[];
+      total_billed: number; total_paid: number; total_difference: number;
+    }>(`/api/payments/confirmation?year=${year}&month=${month}`),
+};
+
+// ========== CSV Import ==========
+export interface CSVImportResult {
+  total_rows: number;
+  imported: number;
+  skipped: number;
+  errors: string[];
+  new_items_created: number;
+}
+
+export interface CSVPreviewData {
+  supplier_id: number;
+  supplier_name: string;
+  encoding: string;
+  headers: string[];
+  rows: { row_number: number; raw: string[] }[];
+  total_columns: number;
+}
+
+export const csvImportApi = {
+  getSuppliers: () =>
+    apiRequest<{ id: number; name: string; csv_encoding: string; csv_format: string | null }[]>(
+      "/api/csv-import/suppliers"
+    ),
+  preview: async (file: File, supplierId: number, encoding: string): Promise<CSVPreviewData> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("supplier_id", String(supplierId));
+    formData.append("encoding", encoding);
+    const response = await fetch(`${API_BASE_URL}/api/csv-import/preview`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Unknown error" }));
+      throw new Error(error.detail || `API Error: ${response.status}`);
+    }
+    return response.json();
+  },
+  execute: async (
+    file: File,
+    params: {
+      supplier_id: number;
+      encoding: string;
+      item_name_col: number;
+      variety_col: number;
+      quantity_col: number;
+      unit_price_col: number;
+      arrived_date: string;
+    }
+  ): Promise<CSVImportResult> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("supplier_id", String(params.supplier_id));
+    formData.append("encoding", params.encoding);
+    formData.append("item_name_col", String(params.item_name_col));
+    formData.append("variety_col", String(params.variety_col));
+    formData.append("quantity_col", String(params.quantity_col));
+    formData.append("unit_price_col", String(params.unit_price_col));
+    formData.append("arrived_date", params.arrived_date);
+    const response = await fetch(`${API_BASE_URL}/api/csv-import/execute`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Unknown error" }));
+      throw new Error(error.detail || `API Error: ${response.status}`);
+    }
+    return response.json();
+  },
+};
+
 const api = {
   stores: storesApi,
   items: itemsApi,
@@ -468,6 +677,9 @@ const api = {
   expenses: expensesApi,
   alerts: alertsApi,
   invoices: invoicesApi,
+  analytics: analyticsApi,
+  payments: paymentsApi,
+  csvImport: csvImportApi,
 };
 
 export default api;

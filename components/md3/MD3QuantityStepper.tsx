@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "motion/react"
 import { md3 } from "@/lib/md3-theme"
 import { Minus, Plus } from "lucide-react"
 
@@ -87,24 +88,30 @@ export function MD3QuantityStepper({
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       {/* Quick decrement buttons */}
       {quickSteps.map((qs) => (
-        <button
+        <motion.button
           key={`dec-${qs}`}
           type="button"
           onClick={() => handleChange(-qs)}
           disabled={disabled || value <= min}
+          whileHover={disabled || value <= min ? undefined : { scale: 1.08 }}
+          whileTap={disabled || value <= min ? undefined : { scale: 0.92 }}
+          transition={{ duration: 0.15 }}
           style={quickButtonStyle(false)}
         >
           -{prefix}{qs}
-        </button>
+        </motion.button>
       ))}
 
       {/* Main stepper */}
       <div style={{ display: "flex", alignItems: "center", height: s.height }}>
         {/* Minus button */}
-        <button
+        <motion.button
           type="button"
           onClick={() => handleChange(-step)}
           disabled={disabled || value <= min}
+          whileHover={disabled || value <= min ? undefined : { backgroundColor: md3.surfaceContainerHighest }}
+          whileTap={disabled || value <= min ? undefined : { scale: 0.9 }}
+          transition={{ duration: 0.15 }}
           style={{
             display: "flex",
             alignItems: "center",
@@ -116,11 +123,10 @@ export function MD3QuantityStepper({
             backgroundColor: md3.surfaceVariant,
             color: disabled || value <= min ? md3.outlineVariant : md3.onSurfaceVariant,
             cursor: disabled || value <= min ? "not-allowed" : "pointer",
-            transition: "all 150ms ease",
           }}
         >
           <Minus size={s.iconSize} />
-        </button>
+        </motion.button>
 
         {/* Number display */}
         <div
@@ -169,10 +175,13 @@ export function MD3QuantityStepper({
         </div>
 
         {/* Plus button */}
-        <button
+        <motion.button
           type="button"
           onClick={() => handleChange(step)}
           disabled={disabled || value >= max}
+          whileHover={disabled || value >= max ? undefined : { opacity: 0.85 }}
+          whileTap={disabled || value >= max ? undefined : { scale: 0.9 }}
+          transition={{ duration: 0.15 }}
           style={{
             display: "flex",
             alignItems: "center",
@@ -184,30 +193,32 @@ export function MD3QuantityStepper({
             backgroundColor: disabled || value >= max ? md3.surfaceContainerHigh : md3.primary,
             color: disabled || value >= max ? md3.outlineVariant : md3.onPrimary,
             cursor: disabled || value >= max ? "not-allowed" : "pointer",
-            transition: "all 150ms ease",
           }}
         >
           <Plus size={s.iconSize} />
-        </button>
+        </motion.button>
       </div>
 
       {/* Quick increment buttons */}
       {quickSteps.map((qs) => (
-        <button
+        <motion.button
           key={`inc-${qs}`}
           type="button"
           onClick={() => handleChange(qs)}
           disabled={disabled || value >= max}
+          whileHover={disabled || value >= max ? undefined : { scale: 1.08 }}
+          whileTap={disabled || value >= max ? undefined : { scale: 0.92 }}
+          transition={{ duration: 0.15 }}
           style={quickButtonStyle(true)}
         >
           +{prefix}{qs}
-        </button>
+        </motion.button>
       ))}
     </div>
   )
 }
 
-// アイテムカード: 商品情報 + 数量ステッパーを一体化
+// アイテムカード: 花情報 + 数量ステッパーを一体化
 interface MD3ItemCardProps {
   name: string
   detail?: string
@@ -239,7 +250,7 @@ export function MD3ItemCard({
         border: `1px solid ${md3.outlineVariant}`,
       }}
     >
-      {/* 左: 商品情報 */}
+      {/* 左: 花情報 */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
         <span
           style={{

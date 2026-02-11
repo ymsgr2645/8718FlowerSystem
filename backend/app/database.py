@@ -45,8 +45,65 @@ def get_db():
 
 def init_db():
     """Initialize database tables and default data"""
-    from app.models import stores, items, inventory, transfers, invoices, supplies, users, settings, logs, expenses
+    from app.models import stores, items, inventory, transfers, invoices, supplies, users, settings, logs, expenses, payments
     Base.metadata.create_all(bind=engine)
+
+    # Add sort_order columns if they don't exist (migration for existing DBs)
+    from sqlalchemy import text, inspect
+    inspector = inspect(engine)
+    with engine.connect() as conn:
+        for table_name in ["items", "suppliers"]:
+            columns = [c["name"] for c in inspector.get_columns(table_name)]
+            if "sort_order" not in columns:
+                conn.execute(text(f"ALTER TABLE {table_name} ADD COLUMN sort_order INTEGER DEFAULT 99"))
+                conn.commit()
+                print(f"Added sort_order column to {table_name}")
+
+        # Arrivals: add detail columns if missing
+        arrival_cols = [c["name"] for c in inspector.get_columns("arrivals")]
+        for col_name, col_type in [
+            ("color", "VARCHAR(100)"),
+            ("grade", "VARCHAR(50)"),
+            ("grade_class", "VARCHAR(50)"),
+            ("stem_length", "INTEGER"),
+            ("bloom_count", "INTEGER"),
+            ("remaining_quantity", "INTEGER"),
+        ]:
+            if col_name not in arrival_cols:
+                conn.execute(text(f"ALTER TABLE arrivals ADD COLUMN {col_name} {col_type}"))
+                conn.commit()
+                print(f"Added {col_name} column to arrivals")
+        # Initialize remaining_quantity from quantity if null
+        if "remaining_quantity" in [c["name"] for c in inspector.get_columns("arrivals")]:
+            conn.execute(text("UPDATE arrivals SET remaining_quantity = quantity WHERE remaining_quantity IS NULL"))
+            conn.commit()
+
+        # Arrivals: add display_id if missing
+        if "display_id" not in arrival_cols:
+            conn.execute(text("ALTER TABLE arrivals ADD COLUMN display_id VARCHAR(20)"))
+            conn.commit()
+            print("Added display_id column to arrivals")
+
+        # Stores: add color if missing
+        store_cols = [c["name"] for c in inspector.get_columns("stores")]
+        if "color" not in store_cols:
+            conn.execute(text("ALTER TABLE stores ADD COLUMN color VARCHAR(7)"))
+            conn.commit()
+            print("Added color column to stores")
+
+        # Transfers: add arrival_id if missing
+        transfer_cols = [c["name"] for c in inspector.get_columns("transfers")]
+        if "arrival_id" not in transfer_cols:
+            conn.execute(text("ALTER TABLE transfers ADD COLUMN arrival_id INTEGER REFERENCES arrivals(id)"))
+            conn.commit()
+            print("Added arrival_id column to transfers")
+
+        # Disposals: add arrival_id if missing
+        disposal_cols = [c["name"] for c in inspector.get_columns("disposals")]
+        if "arrival_id" not in disposal_cols:
+            conn.execute(text("ALTER TABLE disposals ADD COLUMN arrival_id INTEGER REFERENCES arrivals(id)"))
+            conn.commit()
+            print("Added arrival_id column to disposals")
 
     # Initialize default data
     db = SessionLocal()

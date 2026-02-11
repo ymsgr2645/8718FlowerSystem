@@ -57,6 +57,21 @@ def update_supply(supply_id: int, supply: SupplyUpdate, db: Session = Depends(ge
     return db_supply
 
 
+@router.delete("/{supply_id}")
+def delete_supply(supply_id: int, db: Session = Depends(get_db)):
+    """資材を削除（関連データも全て削除）"""
+    from app.models.supplies import SupplyPriceChange
+    db_supply = db.query(Supply).filter(Supply.id == supply_id).first()
+    if not db_supply:
+        raise HTTPException(status_code=404, detail="Supply not found")
+
+    db.query(SupplyPriceChange).filter(SupplyPriceChange.supply_id == supply_id).delete()
+    db.query(SupplyTransfer).filter(SupplyTransfer.supply_id == supply_id).delete()
+    db.delete(db_supply)
+    db.commit()
+    return {"status": "ok", "deleted_id": supply_id}
+
+
 @router.post("/reorder")
 def reorder_supplies(request: SupplyReorderRequest, db: Session = Depends(get_db)):
     """資材の表示順を一括更新"""

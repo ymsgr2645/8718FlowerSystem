@@ -150,7 +150,7 @@ export default function InvoicePage() {
   const exportExcel = async (invoiceId: number) => {
     const detail = await invoicesApi.getById(invoiceId)
     const rows = detail.items.map((item) => ({
-      商品名: item.item_name,
+      花名: item.item_name,
       数量: item.quantity,
       単価: item.unit_price,
       小計: item.subtotal,
@@ -331,7 +331,7 @@ export default function InvoicePage() {
               <MD3Table>
                 <MD3TableHead>
                   <MD3TableRow hoverable={false}>
-                    <MD3TableHeaderCell>商品</MD3TableHeaderCell>
+                    <MD3TableHeaderCell>花</MD3TableHeaderCell>
                     <MD3TableHeaderCell align="right">数量</MD3TableHeaderCell>
                     <MD3TableHeaderCell align="right">単価</MD3TableHeaderCell>
                     <MD3TableHeaderCell align="right">小計</MD3TableHeaderCell>

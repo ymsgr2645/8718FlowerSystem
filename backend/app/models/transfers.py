@@ -17,6 +17,7 @@ class Transfer(Base):
     id = Column(Integer, primary_key=True, index=True)
     store_id = Column(Integer, ForeignKey("stores.id"), nullable=False)
     item_id = Column(Integer, ForeignKey("items.id"), nullable=False)
+    arrival_id = Column(Integer, ForeignKey("arrivals.id"))  # どの入荷ロットから
     quantity = Column(Integer, nullable=False)
     unit_price = Column(Numeric(10, 2), nullable=False)  # 販売単価
     wholesale_price = Column(Numeric(10, 2))  # 仕切値（持ち出し時に手入力）

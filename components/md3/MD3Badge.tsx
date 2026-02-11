@@ -1,6 +1,7 @@
 "use client"
 
 import { ReactNode, CSSProperties } from "react"
+import { motion } from "motion/react"
 import { md3, md3Shape } from "@/lib/md3-theme"
 
 // Badge (small indicator)
@@ -124,7 +125,14 @@ export function MD3Chip({
   }
 
   return (
-    <button style={getStyles()} onClick={onClick} disabled={disabled}>
+    <motion.button
+      style={getStyles()}
+      onClick={onClick}
+      disabled={disabled}
+      whileHover={disabled ? undefined : { scale: 1.05, opacity: 0.9 }}
+      whileTap={disabled ? undefined : { scale: 0.95 }}
+      transition={{ duration: 0.15 }}
+    >
       {icon && <span style={{ display: "flex" }}>{icon}</span>}
       <span>{label}</span>
       {trailingIcon && (
@@ -138,7 +146,7 @@ export function MD3Chip({
           {trailingIcon}
         </span>
       )}
-    </button>
+    </motion.button>
   )
 }
 

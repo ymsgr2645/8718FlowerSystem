@@ -104,6 +104,7 @@ interface MD3TableHeaderCellProps {
   sortable?: boolean
   sorted?: "asc" | "desc" | null
   onSort?: () => void
+  style?: CSSProperties
 }
 
 export function MD3TableHeaderCell({
@@ -113,6 +114,7 @@ export function MD3TableHeaderCell({
   sortable = false,
   sorted = null,
   onSort,
+  style,
 }: MD3TableHeaderCellProps) {
   return (
     <th
@@ -127,6 +129,7 @@ export function MD3TableHeaderCell({
         cursor: sortable ? "pointer" : "default",
         userSelect: "none",
         whiteSpace: "nowrap",
+        ...style,
       }}
     >
       <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
@@ -142,11 +145,12 @@ export function MD3TableHeaderCell({
 }
 
 // Table Cell
-interface MD3TableCellProps {
-  children: ReactNode
+export interface MD3TableCellProps {
+  children?: ReactNode
   align?: "left" | "center" | "right"
   highlight?: boolean
   colSpan?: number
+  style?: CSSProperties
 }
 
 export function MD3TableCell({
@@ -154,6 +158,7 @@ export function MD3TableCell({
   align = "left",
   highlight = false,
   colSpan,
+  style,
 }: MD3TableCellProps) {
   return (
     <td
@@ -164,6 +169,7 @@ export function MD3TableCell({
         fontSize: 14,
         color: highlight ? md3.primary : md3.onSurface,
         fontWeight: highlight ? 500 : 400,
+        ...style,
       }}
     >
       {children}

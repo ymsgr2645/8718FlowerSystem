@@ -34,7 +34,7 @@ def get_inventory(
     if low_stock:
         query = query.filter(Inventory.quantity < 10)
 
-    return query.offset(skip).limit(limit).all()
+    return query.order_by(Inventory.quantity.desc()).offset(skip).limit(limit).all()
 
 
 @router.get("/item/{item_id}", response_model=InventoryResponse)
@@ -56,6 +56,7 @@ def get_arrivals(
     db: Session = Depends(get_db)
 ):
     """入荷履歴一覧"""
+    from app.models.settings import Supplier
     query = db.query(Arrival)
     if item_id:
         query = query.filter(Arrival.item_id == item_id)
@@ -66,7 +67,44 @@ def get_arrivals(
     if date_to:
         query = query.filter(Arrival.arrived_at <= datetime.combine(date_to, time.max))
 
-    return query.order_by(Arrival.arrived_at.desc()).offset(skip).limit(limit).all()
+    rows = query.order_by(Arrival.arrived_at.desc()).offset(skip).limit(limit).all()
+
+    # Enrich with item/supplier names
+    item_ids = {r.item_id for r in rows}
+    supplier_ids = {r.supplier_id for r in rows if r.supplier_id}
+    item_map = {i.id: i for i in db.query(Item).filter(Item.id.in_(item_ids)).all()} if item_ids else {}
+    supplier_map = {s.id: s.name for s in db.query(Supplier).filter(Supplier.id.in_(supplier_ids)).all()} if supplier_ids else {}
+
+    result = []
+    for r in rows:
+        data = ArrivalResponse.model_validate(r)
+        item = item_map.get(r.item_id)
+        if item:
+            data.item_name = item.name
+            data.item_variety = item.variety
+        data.supplier_name = supplier_map.get(r.supplier_id)
+        result.append(data)
+    return result
+
+
+def _generate_display_id(db: Session, arrival_date: datetime = None) -> str:
+    """日付+連番のdisplay_idを生成 (例: 260208-003)"""
+    target = arrival_date or datetime.now()
+    prefix = target.strftime("%y%m%d")
+    # 同日の最大連番を取得
+    last = (
+        db.query(Arrival.display_id)
+        .filter(Arrival.display_id.like(f"{prefix}-%"))
+        .order_by(Arrival.display_id.desc())
+        .first()
+    )
+    seq = 1
+    if last and last[0]:
+        try:
+            seq = int(last[0].split("-")[1]) + 1
+        except (IndexError, ValueError):
+            pass
+    return f"{prefix}-{seq:03d}"
 
 
 @router.post("/arrivals", response_model=ArrivalResponse)
@@ -78,11 +116,20 @@ def create_arrival(arrival: ArrivalCreate, db: Session = Depends(get_db)):
     if arrival.quantity <= 0:
         raise HTTPException(status_code=400, detail="Quantity must be positive")
 
+    display_id = _generate_display_id(db, arrival.arrived_at)
+
     db_arrival = Arrival(
+        display_id=display_id,
         item_id=arrival.item_id,
         supplier_id=arrival.supplier_id,
         quantity=arrival.quantity,
+        remaining_quantity=arrival.quantity,
         wholesale_price=arrival.wholesale_price,
+        color=arrival.color,
+        grade=arrival.grade,
+        grade_class=arrival.grade_class,
+        stem_length=arrival.stem_length,
+        bloom_count=arrival.bloom_count,
         source_type=arrival.source_type or "manual",
         arrived_at=arrival.arrived_at or None,
     )
@@ -178,6 +225,7 @@ def create_disposal(disposal: DisposalCreate, db: Session = Depends(get_db)):
 
     db_disposal = Disposal(
         item_id=disposal.item_id,
+        arrival_id=disposal.arrival_id,
         quantity=disposal.quantity,
         reason=disposal.reason,
         note=disposal.note,
@@ -185,6 +233,12 @@ def create_disposal(disposal: DisposalCreate, db: Session = Depends(get_db)):
     )
     db.add(db_disposal)
     inventory.quantity -= disposal.quantity
+
+    # 入荷ロットの残数も減らす
+    if disposal.arrival_id:
+        arrival = db.query(Arrival).filter(Arrival.id == disposal.arrival_id).first()
+        if arrival and arrival.remaining_quantity is not None:
+            arrival.remaining_quantity = max(0, arrival.remaining_quantity - disposal.quantity)
 
     db.commit()
     db.refresh(db_disposal)

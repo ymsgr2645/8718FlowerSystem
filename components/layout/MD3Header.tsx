@@ -1,10 +1,11 @@
 "use client"
 
-import { ReactNode } from "react"
+import { ReactNode, useState, useEffect } from "react"
 import { md3, md3Shape } from "@/lib/md3-theme"
-import { Search, Bell, User } from "lucide-react"
+import { Search, Bell, User, ShieldCheck } from "lucide-react"
 import { MD3Badge } from "@/components/md3/MD3Badge"
 import { MD3IconButton } from "@/components/md3/MD3Button"
+import { getRoleFromStorage, ROLE_LABELS, type UserRole } from "@/lib/roles"
 
 interface MD3HeaderProps {
   title?: string
@@ -12,7 +13,23 @@ interface MD3HeaderProps {
   actions?: ReactNode
 }
 
+const ROLE_COLORS: Record<UserRole, string> = {
+  admin: "#C0634A",
+  boss: "#1565C0",
+  manager: "#2E7D32",
+  staff: "#616161",
+}
+
 export default function MD3Header({ title, subtitle, actions }: MD3HeaderProps) {
+  const [role, setRole] = useState<UserRole>("staff")
+
+  useEffect(() => {
+    setRole(getRoleFromStorage())
+  }, [])
+
+  const isAdmin = role === "admin"
+  const displayRole = isAdmin ? "boss" : role
+
   return (
     <header
       style={{
@@ -69,6 +86,48 @@ export default function MD3Header({ title, subtitle, actions }: MD3HeaderProps) 
         </div>
 
         {actions}
+
+        {/* Admin バッジ */}
+        {isAdmin && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "4px 12px",
+              borderRadius: md3Shape.full,
+              backgroundColor: `${md3.primary}15`,
+              border: `1px solid ${md3.primary}40`,
+            }}
+          >
+            <ShieldCheck size={14} color={md3.primary} />
+            <span style={{
+              fontSize: 11,
+              fontWeight: 700,
+              color: md3.primary,
+              letterSpacing: 1,
+              fontFamily: "'IBM Plex Sans JP', sans-serif",
+            }}>
+              ADMIN
+            </span>
+          </div>
+        )}
+
+        {/* ロールバッジ */}
+        <span
+          style={{
+            padding: "4px 10px",
+            borderRadius: md3Shape.full,
+            fontSize: 11,
+            fontWeight: 600,
+            backgroundColor: `${ROLE_COLORS[displayRole]}12`,
+            color: ROLE_COLORS[displayRole],
+            border: `1px solid ${ROLE_COLORS[displayRole]}30`,
+            fontFamily: "'IBM Plex Sans JP', sans-serif",
+          }}
+        >
+          {ROLE_LABELS[displayRole]}
+        </span>
 
         <MD3Badge count={3} color="error">
           <MD3IconButton variant="standard">

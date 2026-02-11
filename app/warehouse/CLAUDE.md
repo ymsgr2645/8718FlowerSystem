@@ -5,5 +5,5 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #74 | 9:51 AM | 🔵 | Warehouse page manages inventory adjustments with long-term stock alerts | ~601 |
+| #146 | 11:20 AM | 🔵 | Warehouse inventory page with analytics and dual inventory management | ~641 |
 </claude-mem-context>

@@ -11,7 +11,8 @@ from app.models.settings import Setting, TaxRate, Supplier
 from app.schemas.settings import (
     SettingResponse, SettingUpdate,
     TaxRateResponse, TaxRateCreate,
-    SupplierResponse, SupplierCreate, SupplierUpdate
+    SupplierResponse, SupplierCreate, SupplierUpdate,
+    SupplierReorderRequest
 )
 
 router = APIRouter()
@@ -49,7 +50,7 @@ def create_tax_rate(tax_rate: TaxRateCreate, db: Session = Depends(get_db)):
 
 @router.get("/suppliers", response_model=List[SupplierResponse])
 def get_suppliers(db: Session = Depends(get_db)):
-    return db.query(Supplier).order_by(Supplier.name.asc()).all()
+    return db.query(Supplier).order_by(Supplier.sort_order.asc(), Supplier.id.asc()).all()
 
 
 @router.post("/suppliers", response_model=SupplierResponse)
@@ -72,3 +73,30 @@ def update_supplier(supplier_id: int, supplier: SupplierUpdate, db: Session = De
     db.commit()
     db.refresh(db_supplier)
     return db_supplier
+
+
+@router.post("/suppliers/reorder")
+def reorder_suppliers(request: SupplierReorderRequest, db: Session = Depends(get_db)):
+    """卸売業者の表示順を一括更新"""
+    for item in request.items:
+        db_supplier = db.query(Supplier).filter(Supplier.id == item.id).first()
+        if db_supplier:
+            db_supplier.sort_order = item.sort_order
+    db.commit()
+    return {"status": "ok", "updated": len(request.items)}
+
+
+@router.delete("/suppliers/{supplier_id}")
+def delete_supplier(supplier_id: int, db: Session = Depends(get_db)):
+    """卸売業者を削除（入荷の参照はnullに）"""
+    from app.models.inventory import Arrival
+    db_supplier = db.query(Supplier).filter(Supplier.id == supplier_id).first()
+    if not db_supplier:
+        raise HTTPException(status_code=404, detail="Supplier not found")
+
+    db.query(Arrival).filter(Arrival.supplier_id == supplier_id).update(
+        {"supplier_id": None}, synchronize_session=False
+    )
+    db.delete(db_supplier)
+    db.commit()
+    return {"status": "ok", "deleted_id": supplier_id}

@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation"
-
-export default function StoreLayout() {
-  redirect("/dashboard")
+export default function StoreLayout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>
 }

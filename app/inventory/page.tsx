@@ -118,7 +118,7 @@ export default function InventoryPage() {
           <div style={{ display: "flex", gap: 16 }}>
             <div style={{ flex: 1 }}>
               <MD3TextField
-                placeholder="商品名またはコードで検索..."
+                placeholder="花名またはコードで検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 fullWidth
@@ -151,7 +151,7 @@ export default function InventoryPage() {
                 <MD3TableHead>
                   <MD3TableRow hoverable={false}>
                     <MD3TableHeaderCell>コード</MD3TableHeaderCell>
-                    <MD3TableHeaderCell>商品</MD3TableHeaderCell>
+                    <MD3TableHeaderCell>花</MD3TableHeaderCell>
                     <MD3TableHeaderCell>カテゴリ</MD3TableHeaderCell>
                     <MD3TableHeaderCell align="right">在庫数</MD3TableHeaderCell>
                     <MD3TableHeaderCell align="right">単価</MD3TableHeaderCell>
@@ -174,7 +174,7 @@ export default function InventoryPage() {
                         <MD3TableCell>
                           <span style={{ fontFamily: "monospace" }}>{inv.item?.item_code || "-"}</span>
                         </MD3TableCell>
-                        <MD3TableCell highlight>{inv.item?.name || "商品"}</MD3TableCell>
+                        <MD3TableCell highlight>{inv.item?.name || "花"}</MD3TableCell>
                         <MD3TableCell>
                           <MD3StatusBadge status="neutral" label={inv.item?.category || "-"} size="small" />
                         </MD3TableCell>

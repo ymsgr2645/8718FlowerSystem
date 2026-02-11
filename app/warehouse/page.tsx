@@ -9,14 +9,6 @@ import { MD3TextField } from "@/components/md3/MD3TextField"
 import { MD3Select } from "@/components/md3/MD3Select"
 import { MD3NumberField } from "@/components/md3/MD3NumberField"
 import {
-  MD3Table,
-  MD3TableHead,
-  MD3TableBody,
-  MD3TableRow,
-  MD3TableHeaderCell,
-  MD3TableCell,
-} from "@/components/md3/MD3Table"
-import {
   MD3Dialog,
   MD3DialogHeader,
   MD3DialogTitle,
@@ -292,7 +284,7 @@ export default function WarehousePage() {
                     <BarChart3 size={24} color={md3.onTertiaryContainer} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, color: md3.onSurfaceVariant, fontFamily: "'Zen Maru Gothic', sans-serif" }}>商品種類</div>
+                    <div style={{ fontSize: 12, color: md3.onSurfaceVariant, fontFamily: "'Zen Maru Gothic', sans-serif" }}>花の種類</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: md3.onSurface, fontFamily: "'Zen Maru Gothic', sans-serif" }}>
                       {inventory.length}
                     </div>
@@ -413,7 +405,7 @@ export default function WarehousePage() {
               <div style={{ display: "flex", gap: 16 }}>
                 <div style={{ flex: 1 }}>
                   <MD3TextField
-                    placeholder="商品名またはコードで検索..."
+                    placeholder="花名またはコードで検索..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     fullWidth
@@ -432,71 +424,63 @@ export default function WarehousePage() {
             </MD3CardContent>
           </MD3Card>
 
-          <MD3Card variant="outlined">
-            <MD3CardHeader>
-              <MD3CardTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Package size={20} color={md3.primary} />
-                在庫一覧
-                <MD3StatusBadge status="neutral" label={`${filteredInventory.length}件`} size="small" />
-              </MD3CardTitle>
-            </MD3CardHeader>
-            <MD3CardContent style={{ padding: 0 }}>
-              <div style={{ overflowX: "auto" }}>
-                <MD3Table>
-                  <MD3TableHead>
-                    <MD3TableRow hoverable={false}>
-                      <MD3TableHeaderCell>コード</MD3TableHeaderCell>
-                      <MD3TableHeaderCell>商品</MD3TableHeaderCell>
-                      <MD3TableHeaderCell>カテゴリ</MD3TableHeaderCell>
-                      <MD3TableHeaderCell align="right">在庫数</MD3TableHeaderCell>
-                      <MD3TableHeaderCell align="right">単価</MD3TableHeaderCell>
-                      <MD3TableHeaderCell align="right">在庫金額</MD3TableHeaderCell>
-                      <MD3TableHeaderCell align="center">操作</MD3TableHeaderCell>
-                    </MD3TableRow>
-                  </MD3TableHead>
-                  <MD3TableBody>
-                    {filteredInventory.length === 0 ? (
-                      <MD3TableRow hoverable={false}>
-                        <MD3TableCell colSpan={7}>
-                          <div style={{ textAlign: "center", padding: "32px 16px", color: md3.onSurfaceVariant }}>
-                            在庫データがありません
-                          </div>
-                        </MD3TableCell>
-                      </MD3TableRow>
-                    ) : (
-                      filteredInventory.map((inv) => (
-                        <MD3TableRow key={inv.id}>
-                          <MD3TableCell>
-                            <span style={{ fontFamily: "monospace" }}>{inv.item?.item_code || "-"}</span>
-                          </MD3TableCell>
-                          <MD3TableCell highlight>{inv.item?.name || "商品"}</MD3TableCell>
-                          <MD3TableCell>
-                            <MD3StatusBadge status="neutral" label={inv.item?.category || "-"} size="small" />
-                          </MD3TableCell>
-                          <MD3TableCell align="right">
-                            <span style={{ fontWeight: 500 }}>{inv.quantity.toLocaleString()}</span>
-                          </MD3TableCell>
-                          <MD3TableCell align="right">
-                            {inv.unit_price ? `¥${Number(inv.unit_price).toLocaleString()}` : "-"}
-                          </MD3TableCell>
-                          <MD3TableCell align="right">
-                            <span style={{ fontWeight: 600, color: md3.primary }}>
-                              ¥{(inv.quantity * Number(inv.unit_price || 0)).toLocaleString()}
-                            </span>
-                          </MD3TableCell>
-                          <MD3TableCell align="center">
-                            <MD3Button variant="outlined" onClick={() => handleAdjustInventory(inv)} icon={<Settings size={16} />}>
-                              調整
-                            </MD3Button>
-                          </MD3TableCell>
-                        </MD3TableRow>
-                      ))
-                    )}
-                  </MD3TableBody>
-                </MD3Table>
-              </div>
-            </MD3CardContent>
-          </MD3Card>
+          {/* 在庫一覧（カード） */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <Package size={20} color={md3.primary} />
+            <span style={{ fontSize: 16, fontWeight: 600, color: md3.onSurface }}>在庫一覧</span>
+            <MD3StatusBadge status="neutral" label={`${filteredInventory.length}件`} size="small" />
+          </div>
+          {filteredInventory.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 48, color: md3.onSurfaceVariant }}>在庫データがありません</div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+              {filteredInventory.map((inv) => {
+                const stockValue = inv.quantity * Number(inv.unit_price || 0)
+                const isLow = inv.quantity <= 5
+                const isOut = inv.quantity === 0
+                return (
+                  <MD3Card
+                    key={inv.id}
+                    variant="outlined"
+                    hoverable
+                    onClick={() => handleAdjustInventory(inv)}
+                    style={{
+                      cursor: "pointer",
+                      borderColor: isOut ? md3.error : isLow ? md3.tertiary : undefined,
+                    }}
+                  >
+                    <MD3CardContent style={{ padding: 16 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                        <div style={{ fontSize: 16, fontWeight: 600, color: md3.onSurface }}>{inv.item?.name || "花"}</div>
+                        <span style={{ fontFamily: "monospace", fontSize: 11, color: md3.onSurfaceVariant }}>{inv.item?.item_code}</span>
+                      </div>
+                      <div style={{
+                        fontSize: 28,
+                        fontWeight: 700,
+                        color: isOut ? md3.error : isLow ? md3.tertiary : md3.primary,
+                        marginBottom: 4,
+                      }}>
+                        {inv.quantity.toLocaleString()}
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: 12, color: md3.onSurfaceVariant }}>
+                          @¥{Number(inv.unit_price || 0).toLocaleString()}
+                        </span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: md3.primary }}>
+                          ¥{stockValue.toLocaleString()}
+                        </span>
+                      </div>
+                      {inv.item?.category && (
+                        <div style={{ marginTop: 8 }}>
+                          <MD3StatusBadge status="neutral" label={inv.item.category} size="small" />
+                        </div>
+                      )}
+                    </MD3CardContent>
+                  </MD3Card>
+                )
+              })}
+            </div>
+          )}
         </>
       )}
 
@@ -701,85 +685,64 @@ export default function WarehousePage() {
             </MD3Card>
           </div>
 
-          {/* 資材在庫一覧 */}
-          <MD3Card variant="outlined">
-            <MD3CardHeader>
-              <MD3CardTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Boxes size={20} color={md3.primary} />
-                資材在庫一覧
-                <MD3StatusBadge status="neutral" label={`${supplies.filter(s => s.is_active).length}件`} size="small" />
-              </MD3CardTitle>
-            </MD3CardHeader>
-            <MD3CardContent style={{ padding: 0 }}>
-              <div style={{ overflowX: "auto" }}>
-                <MD3Table>
-                  <MD3TableHead>
-                    <MD3TableRow hoverable={false}>
-                      <MD3TableHeaderCell>資材名</MD3TableHeaderCell>
-                      <MD3TableHeaderCell>規格</MD3TableHeaderCell>
-                      <MD3TableHeaderCell align="right">単価</MD3TableHeaderCell>
-                      <MD3TableHeaderCell align="right">在庫数</MD3TableHeaderCell>
-                      <MD3TableHeaderCell align="right">在庫金額</MD3TableHeaderCell>
-                      <MD3TableHeaderCell>状態</MD3TableHeaderCell>
-                    </MD3TableRow>
-                  </MD3TableHead>
-                  <MD3TableBody>
-                    {supplies.filter((s) => s.is_active).length === 0 ? (
-                      <MD3TableRow hoverable={false}>
-                        <MD3TableCell colSpan={6}>
-                          <div style={{ textAlign: "center", padding: "32px 16px", color: md3.onSurfaceVariant }}>
-                            資材データがありません
-                          </div>
-                        </MD3TableCell>
-                      </MD3TableRow>
-                    ) : (
-                      supplies
-                        .filter((s) => s.is_active)
-                        .map((supply) => {
-                          const stockQty = supply.stock_quantity || 0
-                          const stockValue = stockQty * (supply.unit_price || 0)
-                          const isLow = stockQty <= lowStockThreshold
-                          const isOut = stockQty === 0
-                          return (
-                            <MD3TableRow key={supply.id}>
-                              <MD3TableCell highlight>{supply.name}</MD3TableCell>
-                              <MD3TableCell>
-                                <span style={{ fontSize: 13, color: md3.onSurfaceVariant }}>{supply.specification || "-"}</span>
-                              </MD3TableCell>
-                              <MD3TableCell align="right">
-                                ¥{(supply.unit_price || 0).toLocaleString()}
-                              </MD3TableCell>
-                              <MD3TableCell align="right">
-                                <span
-                                  style={{
-                                    fontWeight: 600,
-                                    color: isOut ? md3.error : isLow ? md3.tertiary : md3.onSurface,
-                                  }}
-                                >
-                                  {stockQty.toLocaleString()}
-                                </span>
-                              </MD3TableCell>
-                              <MD3TableCell align="right">
-                                <span style={{ fontWeight: 600, color: md3.primary }}>
-                                  ¥{stockValue.toLocaleString()}
-                                </span>
-                              </MD3TableCell>
-                              <MD3TableCell>
-                                <MD3StatusBadge
-                                  status={isOut ? "error" : isLow ? "warning" : "success"}
-                                  label={isOut ? "在庫切れ" : isLow ? "残少" : "正常"}
-                                  size="small"
-                                />
-                              </MD3TableCell>
-                            </MD3TableRow>
-                          )
-                        })
-                    )}
-                  </MD3TableBody>
-                </MD3Table>
-              </div>
-            </MD3CardContent>
-          </MD3Card>
+          {/* 資材在庫一覧（カード） */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <Boxes size={20} color={md3.primary} />
+            <span style={{ fontSize: 16, fontWeight: 600, color: md3.onSurface }}>資材在庫一覧</span>
+            <MD3StatusBadge status="neutral" label={`${supplies.filter(s => s.is_active).length}件`} size="small" />
+          </div>
+          {supplies.filter((s) => s.is_active).length === 0 ? (
+            <div style={{ textAlign: "center", padding: 48, color: md3.onSurfaceVariant }}>資材データがありません</div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+              {supplies.filter((s) => s.is_active).map((supply) => {
+                const stockQty = supply.stock_quantity || 0
+                const stockValue = stockQty * (supply.unit_price || 0)
+                const isLow = stockQty <= lowStockThreshold
+                const isOut = stockQty === 0
+                return (
+                  <MD3Card
+                    key={supply.id}
+                    variant="outlined"
+                    hoverable
+                    style={{ borderColor: isOut ? md3.error : isLow ? md3.tertiary : undefined }}
+                  >
+                    <MD3CardContent style={{ padding: 16 }}>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: md3.onSurface, marginBottom: 4 }}>
+                        {supply.name}
+                      </div>
+                      {supply.specification && (
+                        <div style={{ fontSize: 12, color: md3.onSurfaceVariant, marginBottom: 8 }}>{supply.specification}</div>
+                      )}
+                      <div style={{
+                        fontSize: 28,
+                        fontWeight: 700,
+                        color: isOut ? md3.error : isLow ? md3.tertiary : md3.primary,
+                        marginBottom: 4,
+                      }}>
+                        {stockQty.toLocaleString()}
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: 12, color: md3.onSurfaceVariant }}>
+                          @¥{(supply.unit_price || 0).toLocaleString()}
+                        </span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: md3.primary }}>
+                          ¥{stockValue.toLocaleString()}
+                        </span>
+                      </div>
+                      <div style={{ marginTop: 8 }}>
+                        <MD3StatusBadge
+                          status={isOut ? "error" : isLow ? "warning" : "success"}
+                          label={isOut ? "在庫切れ" : isLow ? "残少" : "正常"}
+                          size="small"
+                        />
+                      </div>
+                    </MD3CardContent>
+                  </MD3Card>
+                )
+              })}
+            </div>
+          )}
         </>
       )}
 

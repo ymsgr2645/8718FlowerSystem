@@ -1,6 +1,7 @@
 "use client"
 
-import { CSSProperties, useState } from "react"
+import { useState } from "react"
+import { motion } from "motion/react"
 import { md3, md3Shape } from "@/lib/md3-theme"
 
 interface MD3SwitchProps {
@@ -9,6 +10,7 @@ interface MD3SwitchProps {
   onChange?: (checked: boolean) => void
   disabled?: boolean
   label?: string
+  size?: "default" | "small"
 }
 
 export function MD3Switch({
@@ -17,11 +19,10 @@ export function MD3Switch({
   onChange,
   disabled = false,
   label,
+  size = "default",
 }: MD3SwitchProps) {
   const [internalChecked, setInternalChecked] = useState(defaultChecked)
   const isChecked = controlledChecked !== undefined ? controlledChecked : internalChecked
-  const [isHovered, setIsHovered] = useState(false)
-  const [isPressed, setIsPressed] = useState(false)
 
   const handleClick = () => {
     if (disabled) return
@@ -32,78 +33,61 @@ export function MD3Switch({
     onChange?.(newValue)
   }
 
-  const trackStyles: CSSProperties = {
-    position: "relative",
-    width: 52,
-    height: 32,
-    borderRadius: md3Shape.full,
-    backgroundColor: isChecked ? md3.primary : md3.surfaceContainerHighest,
-    border: isChecked ? "none" : `2px solid ${md3.outline}`,
-    cursor: disabled ? "not-allowed" : "pointer",
-    transition: "all 200ms cubic-bezier(0.2, 0, 0, 1)",
-    opacity: disabled ? 0.38 : 1,
-  }
+  const isSmall = size === "small"
 
-  const thumbStyles: CSSProperties = {
-    position: "absolute",
-    top: "50%",
-    left: isChecked ? "calc(100% - 28px)" : "4px",
-    transform: "translateY(-50%)",
-    width: isChecked ? 24 : isPressed ? 28 : isHovered ? 24 : 16,
-    height: isChecked ? 24 : isPressed ? 28 : isHovered ? 24 : 16,
-    borderRadius: md3Shape.full,
-    backgroundColor: isChecked ? md3.onPrimary : md3.outline,
-    transition: "all 200ms cubic-bezier(0.2, 0, 0, 1)",
-    boxShadow: isChecked
-      ? "0 1px 3px rgba(0, 0, 0, 0.3)"
-      : "none",
-  }
-
-  const stateLayerStyles: CSSProperties = {
-    position: "absolute",
-    top: "50%",
-    left: isChecked ? "calc(100% - 28px)" : "4px",
-    transform: "translate(-12px, -50%)",
-    width: 40,
-    height: 40,
-    borderRadius: md3Shape.full,
-    backgroundColor: isChecked ? md3.primary : md3.onSurface,
-    opacity: isHovered ? 0.08 : isPressed ? 0.12 : 0,
-    transition: "opacity 200ms ease",
-    pointerEvents: "none",
-  }
+  const trackW = isSmall ? 36 : 52
+  const trackH = isSmall ? 20 : 32
+  const thumbChecked = isSmall ? 14 : 24
+  const thumbUnchecked = isSmall ? 10 : 16
+  const thumbOffset = isSmall ? 3 : 4
 
   return (
-    <div
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 12,
-      }}
-    >
-      <div
-        style={trackStyles}
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 12 }}>
+      <motion.div
         onClick={handleClick}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => {
-          setIsHovered(false)
-          setIsPressed(false)
+        animate={{
+          backgroundColor: isChecked ? md3.primary : md3.surfaceContainerHighest,
         }}
-        onMouseDown={() => setIsPressed(true)}
-        onMouseUp={() => setIsPressed(false)}
+        transition={{ duration: 0.2 }}
+        whileHover={disabled ? undefined : { scale: 1.05 }}
+        whileTap={disabled ? undefined : { scale: 0.95 }}
+        style={{
+          position: "relative",
+          width: trackW,
+          height: trackH,
+          borderRadius: md3Shape.full,
+          border: isChecked ? "none" : `${isSmall ? 1.5 : 2}px solid ${md3.outline}`,
+          cursor: disabled ? "not-allowed" : "pointer",
+          opacity: disabled ? 0.38 : 1,
+        }}
         role="switch"
         aria-checked={isChecked}
         tabIndex={disabled ? -1 : 0}
-        onKeyDown={(e) => {
+        onKeyDown={(e: React.KeyboardEvent) => {
           if (e.key === " " || e.key === "Enter") {
             e.preventDefault()
             handleClick()
           }
         }}
       >
-        <div style={stateLayerStyles} />
-        <div style={thumbStyles} />
-      </div>
+        {/* Thumb */}
+        <motion.div
+          animate={{
+            left: isChecked ? trackW - thumbChecked - thumbOffset : thumbOffset,
+            width: isChecked ? thumbChecked : thumbUnchecked,
+            height: isChecked ? thumbChecked : thumbUnchecked,
+            backgroundColor: isChecked ? md3.onPrimary : md3.outline,
+          }}
+          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+          style={{
+            position: "absolute",
+            top: "50%",
+            transform: "translateY(-50%)",
+            borderRadius: md3Shape.full,
+            boxShadow: isChecked ? "0 1px 2px rgba(0, 0, 0, 0.3)" : "none",
+          }}
+        />
+      </motion.div>
       {label && (
         <span
           style={{

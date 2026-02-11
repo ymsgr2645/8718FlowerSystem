@@ -297,13 +297,14 @@ export default function ArrivalsPage() {
       {/* Flower Tab */}
       {activeTab === "flower" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
           <MD3Card variant="outlined" hoverable={false}>
             <MD3CardHeader title="入荷（手入力）" />
             <MD3CardContent>
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 <MD3ItemAutocomplete
-                  label="商品を検索"
-                  placeholder="商品名やコードで検索..."
+                  label="花を検索"
+                  placeholder="花名やコードで検索..."
                   items={items.map((item) => ({
                     id: item.id,
                     name: item.name,
@@ -427,7 +428,7 @@ export default function ArrivalsPage() {
                 <>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginTop: 16 }}>
                     <MD3Select
-                      label="商品コード列"
+                      label="花コード列"
                       value={mapping.item_code_col.toString()}
                       onChange={(e) => setMapping({ ...mapping, item_code_col: parseInt(e.target.value) })}
                       options={headers.map((header, idx) => ({ value: idx.toString(), label: `${idx + 1}: ${header}` }))}
@@ -459,6 +460,7 @@ export default function ArrivalsPage() {
               )}
             </MD3CardContent>
           </MD3Card>
+          </div>
 
           <MD3Card variant="outlined" hoverable={false}>
             <MD3CardHeader title="入荷履歴" />
@@ -466,8 +468,9 @@ export default function ArrivalsPage() {
               <MD3Table>
                 <MD3TableHead>
                   <MD3TableRow hoverable={false}>
+                    <MD3TableHeaderCell>ID</MD3TableHeaderCell>
                     <MD3TableHeaderCell>入荷日</MD3TableHeaderCell>
-                    <MD3TableHeaderCell>商品</MD3TableHeaderCell>
+                    <MD3TableHeaderCell>花</MD3TableHeaderCell>
                     <MD3TableHeaderCell align="right">数量</MD3TableHeaderCell>
                     <MD3TableHeaderCell align="right">単価</MD3TableHeaderCell>
                     <MD3TableHeaderCell>種別</MD3TableHeaderCell>
@@ -475,12 +478,15 @@ export default function ArrivalsPage() {
                 </MD3TableHead>
                 <MD3TableBody>
                   {arrivals.length === 0 ? (
-                    <MD3TableEmpty colSpan={5} title="入荷履歴がありません" />
+                    <MD3TableEmpty colSpan={6} title="入荷履歴がありません" />
                   ) : (
                     arrivals.map((arrival) => {
                       const item = items.find((i) => i.id === arrival.item_id)
                       return (
                         <MD3TableRow key={arrival.id}>
+                          <MD3TableCell>
+                            <span style={{ fontFamily: "monospace", fontSize: 12, color: md3.onSurfaceVariant }}>{arrival.display_id || "-"}</span>
+                          </MD3TableCell>
                           <MD3TableCell>{new Date(arrival.arrived_at).toLocaleDateString("ja-JP")}</MD3TableCell>
                           <MD3TableCell>{item ? `${item.item_code} ${item.name}` : arrival.item_id}</MD3TableCell>
                           <MD3TableCell align="right">{arrival.quantity.toLocaleString()}</MD3TableCell>

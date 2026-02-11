@@ -20,19 +20,35 @@ class ArrivalCreate(BaseModel):
     supplier_id: Optional[int] = None
     quantity: int
     wholesale_price: Optional[Decimal] = None
+    color: Optional[str] = None
+    grade: Optional[str] = None
+    grade_class: Optional[str] = None
+    stem_length: Optional[int] = None
+    bloom_count: Optional[int] = None
     source_type: Optional[str] = "manual"
     arrived_at: Optional[datetime] = None
 
 
 class ArrivalResponse(BaseModel):
     id: int
+    display_id: Optional[str] = None
     item_id: int
     supplier_id: Optional[int] = None
     quantity: int
+    remaining_quantity: Optional[int] = None
     wholesale_price: Optional[Decimal] = None
+    color: Optional[str] = None
+    grade: Optional[str] = None
+    grade_class: Optional[str] = None
+    stem_length: Optional[int] = None
+    bloom_count: Optional[int] = None
     arrived_at: datetime
     source_type: Optional[str] = None
     created_at: datetime
+    # Joined fields
+    item_name: Optional[str] = None
+    item_variety: Optional[str] = None
+    supplier_name: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -40,6 +56,7 @@ class ArrivalResponse(BaseModel):
 
 class DisposalCreate(BaseModel):
     item_id: int
+    arrival_id: Optional[int] = None
     quantity: int
     reason: Optional[str] = None
     note: Optional[str] = None
@@ -49,6 +66,7 @@ class DisposalCreate(BaseModel):
 class DisposalResponse(BaseModel):
     id: int
     item_id: int
+    arrival_id: Optional[int] = None
     quantity: int
     reason: Optional[str] = None
     note: Optional[str] = None

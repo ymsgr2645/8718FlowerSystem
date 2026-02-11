@@ -1,6 +1,7 @@
 "use client"
 
-import { ReactNode, CSSProperties, useState } from "react"
+import { ReactNode, CSSProperties } from "react"
+import { motion } from "motion/react"
 import { md3, md3Elevation, md3Shape } from "@/lib/md3-theme"
 
 interface MD3CardProps {
@@ -12,6 +13,38 @@ interface MD3CardProps {
   hoverable?: boolean
 }
 
+const variantBase = {
+  elevated: {
+    backgroundColor: md3.surfaceContainerLow,
+    boxShadow: md3Elevation.level1,
+    border: "none",
+  },
+  filled: {
+    backgroundColor: md3.surfaceContainerHighest,
+    boxShadow: "none",
+    border: "none",
+  },
+  outlined: {
+    backgroundColor: md3.surface,
+    boxShadow: "none",
+    border: `1px solid ${md3.outlineVariant}`,
+  },
+}
+
+const variantHover = {
+  elevated: {
+    backgroundColor: md3.surfaceContainer,
+    boxShadow: md3Elevation.level2,
+  },
+  filled: {
+    backgroundColor: md3.surfaceContainerHigh,
+  },
+  outlined: {
+    backgroundColor: md3.surfaceContainerLowest,
+    border: `1px solid ${md3.outline}`,
+  },
+}
+
 export function MD3Card({
   variant = "elevated",
   children,
@@ -20,51 +53,23 @@ export function MD3Card({
   onClick,
   hoverable = true,
 }: MD3CardProps) {
-  const [isHovered, setIsHovered] = useState(false)
-
-  const getVariantStyles = (): CSSProperties => {
-    switch (variant) {
-      case "elevated":
-        return {
-          backgroundColor: isHovered && hoverable ? md3.surfaceContainer : md3.surfaceContainerLow,
-          boxShadow: isHovered && hoverable ? md3Elevation.level2 : md3Elevation.level1,
-          border: "none",
-        }
-      case "filled":
-        return {
-          backgroundColor: isHovered && hoverable ? md3.surfaceContainerHigh : md3.surfaceContainerHighest,
-          boxShadow: "none",
-          border: "none",
-        }
-      case "outlined":
-        return {
-          backgroundColor: isHovered && hoverable ? md3.surfaceContainerLowest : md3.surface,
-          boxShadow: "none",
-          border: `1px solid ${isHovered && hoverable ? md3.outline : md3.outlineVariant}`,
-        }
-      default:
-        return {}
-    }
-  }
-
   return (
-    <div
+    <motion.div
       className={className}
+      whileHover={hoverable ? variantHover[variant] : undefined}
+      transition={{ duration: 0.2 }}
       style={{
         borderRadius: md3Shape.medium,
         padding: 16,
         fontFamily: "'Zen Maru Gothic', sans-serif",
-        transition: "all 200ms cubic-bezier(0.2, 0, 0, 1)",
         cursor: onClick ? "pointer" : "default",
-        ...getVariantStyles(),
+        ...variantBase[variant],
         ...style,
       }}
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {children}
-    </div>
+    </motion.div>
   )
 }
 
@@ -79,7 +84,6 @@ interface MD3CardHeaderProps {
 }
 
 export function MD3CardHeader({ children, title, subtitle, icon, action, style }: MD3CardHeaderProps) {
-  // If using the simple children pattern
   if (children && !title) {
     return (
       <div
@@ -93,7 +97,6 @@ export function MD3CardHeader({ children, title, subtitle, icon, action, style }
     )
   }
 
-  // If using the title/icon/action pattern
   return (
     <div
       style={{

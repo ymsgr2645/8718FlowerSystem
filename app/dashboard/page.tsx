@@ -483,7 +483,7 @@ export default function DashboardPage() {
               <MD3TableHead>
                 <MD3TableRow hoverable={false}>
                   <MD3TableHeaderCell>日付</MD3TableHeaderCell>
-                  <MD3TableHeaderCell>商品</MD3TableHeaderCell>
+                  <MD3TableHeaderCell>花</MD3TableHeaderCell>
                   <MD3TableHeaderCell align="right">数量</MD3TableHeaderCell>
                 </MD3TableRow>
               </MD3TableHead>
@@ -538,7 +538,7 @@ export default function DashboardPage() {
             <MD3Table>
               <MD3TableHead>
                 <MD3TableRow hoverable={false}>
-                  <MD3TableHeaderCell>商品</MD3TableHeaderCell>
+                  <MD3TableHeaderCell>花</MD3TableHeaderCell>
                   <MD3TableHeaderCell align="right">在庫</MD3TableHeaderCell>
                   <MD3TableHeaderCell align="right">日数</MD3TableHeaderCell>
                 </MD3TableRow>
