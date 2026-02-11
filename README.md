@@ -1,76 +1,78 @@
-# 8718system
+# 8718 Flower System
 
-## セットアップ手順
+花屋の業務管理システム。入荷・持出・在庫・請求書・経費を一元管理します。
 
-### 1. Supabaseデータベースのセットアップ
+## 技術スタック
 
-1. [Supabase Dashboard](https://supabase.com/dashboard) にアクセス
-2. プロジェクト `klxefzlppwcaaukqzhzp` を選択
-3. 左メニューから「SQL Editor」を選択
-4. `supabase/schema.sql` の内容をコピー&ペースト
-5. 「Run」ボタンをクリックしてスキーマを作成
+- **フロントエンド**: Next.js 16 (App Router), TypeScript, Material Design 3
+- **バックエンド**: FastAPI (Python), SQLite
+- **PDF生成**: jsPDF
+- **CSV解析**: PapaParse
 
-### 2. テストユーザーの作成
+## セットアップ
 
-Supabase Dashboard の「Authentication」→「Users」から手動でユーザーを作成:
+### 必要なもの
 
-#### 管理者ユーザー
-- Email: `admin@example.com`
-- Password: `password123`
+- Node.js 18+
+- Python 3.10+
 
-作成後、SQL Editorで以下を実行:
-```sql
-INSERT INTO users (id, email, role, name)
-VALUES (
-  (SELECT id FROM auth.users WHERE email = 'admin@example.com'),
-  'admin@example.com',
-  'admin',
-  '管理者'
-);
-```
-
-#### 店舗ユーザー
-- Email: `store@example.com`
-- Password: `password123`
-
-作成後、SQL Editorで以下を実行:
-```sql
-INSERT INTO users (id, email, role, store_id, name)
-VALUES (
-  (SELECT id FROM auth.users WHERE email = 'store@example.com'),
-  'store@example.com',
-  'store',
-  (SELECT id FROM stores WHERE code = 'MAIN001'),
-  '店舗担当者'
-);
-```
-
-### 3. ローカル開発サーバーの起動
+### インストール
 
 ```bash
-npm run dev
+# フロントエンド
+npm install
+
+# バックエンド
+cd backend
+pip install -r requirements.txt
+```
+
+### 起動
+
+```bash
+# ワンコマンド起動（フロント + バックエンド）
+./start.sh
+
+# または個別に起動
+npm run dev                                          # フロントエンド (port 3000)
+cd backend && python3 -m uvicorn app.main:app --reload --port 8000  # バックエンド (port 8000)
 ```
 
 ブラウザで http://localhost:3000 にアクセス
 
+### 開発用ログイン
+
+ログイン画面のクイックログインボタンで即座にアクセス可能:
+
+| ロール | 権限 |
+|--------|------|
+| ADMIN | 全機能アクセス |
+| Boss | 経営管理 + 業務 |
+| Manager | 業務管理 |
+| Staff | 基本業務のみ |
+
 ## 主な機能
 
-### 管理者機能
-- CSV一括取り込み（列マッピング対応）
-- 品目マスタ管理
-- 卸業者管理
-- 店舗管理
-- 請求書生成
+### 業務機能
+- 入荷管理（ロット単位の在庫登録）
+- 持出入力（花・資材の店舗別振り分け、廃棄/ロス記録）
+- 倉庫在庫管理
+- 請求書発行（PDF出力）
+- 経費入力
+- エラーアラート
+- 分析・レポート
 
-### 店舗機能
-- 商品発注（モバイル最適化）
-- 発注履歴確認
+### 管理機能
+- マスタ管理（品目・店舗・卸業者）
+- 花カタログ
+- 権限設定
+- バックアップ
+- 店舗ポータル
 
-## 技術スタック
+## 店舗構成
 
-- Next.js 14 (App Router)
-- TypeScript
-- Tailwind CSS
-- Supabase (PostgreSQL + 認証)
-- jsPDF (PDF生成)
-- PapaParse (CSV解析)
+札幌圏11店舗 + 委託販売 + 通信販売 + 高円寺
+
+## API ドキュメント
+
+バックエンド起動後: http://localhost:8000/docs
